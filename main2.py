@@ -6,6 +6,7 @@
 from compare import build_models, CLASIFFIER_LIST
 from tksheet import Sheet
 from tkinter import filedialog, Toplevel
+from PIL import ImageTk, Image
 import tkinter as tk
 import pandas as pd
 import csv
@@ -14,7 +15,7 @@ class App(tk.Tk):
     def __init__(self):
         # initialize private properties
         self.root = tk.Tk.__init__(self)
-        self.filename = 'C:/Users/ewaad/Downloads/heart.csv'
+        self.filename = 'D:/Projekty/Python/DataMining/example_data.csv'
 
         # label dla ścieżki
         path_input_label = tk.Label(self.root, text="Path:")
@@ -58,7 +59,19 @@ class App(tk.Tk):
         output_data = build_models(data, data.iloc[:, -1], CLASIFFIER_LIST, 2137)
         print(output_data)
         window = Toplevel(self.root)
-        return
+
+        file = 'matrices/SVC.jpg'
+        image = Image.open(file)
+
+        zoom = 0.2
+
+        # multiple image size by zoom
+        pixels_x, pixels_y = tuple([int(zoom * x) for x in image.size])
+
+        img = ImageTk.PhotoImage(image.resize((pixels_x, pixels_y)))
+        label = tk.Label(window, image=img)
+        label.image = img
+        label.grid(row=4, column=1, columnspan=4, padx=10, pady=10)
 
     # TODO funkcja wyświetlająca dane + instrukcja obsługi w postaci małego tekstu
     def display_data(self, filename):
