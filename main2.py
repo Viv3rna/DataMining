@@ -16,6 +16,7 @@ class App(tk.Tk):
         # initialize private properties
         self.root = tk.Tk.__init__(self)
         self.filename = 'D:/Projekty/Python/DataMining/example_data.csv'
+        self.window = None
 
         # label dla ścieżki
         path_input_label = tk.Label(self.root, text="Path:")
@@ -57,12 +58,30 @@ class App(tk.Tk):
         data = pd.read_csv(filename)
         # jeśli ta linijka wywala błąd to znaczy że potrzebuje by stworzyć folder 'matrices'
         output_data = build_models(data, data.iloc[:, -1], CLASIFFIER_LIST, 2137)
-        print(output_data)
-        window = Toplevel(self.root, padx=10, pady=10)
+
+        # allow to only open one window
+        if self.window is not None:
+            self.window.destroy()
+        self.window = Toplevel(self.root, padx=10, pady=10)
+        self.window.geometry('500x500')
+
+        # configure scrollbar
+        main_frame = tk.Frame(self.window)
+        main_frame.pack(fill=tk.BOTH, expand=1)
+        canvas = tk.Canvas(main_frame)
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+        scrollbar = tk.Scrollbar(main_frame, orient=tk.VERTICAL, command=canvas.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        inner_frame = tk.Frame(canvas)
+        canvas.create_window((0,0), window=inner_frame, anchor="nw")
+
+        # display outcome in frames
         i = 0
         for model in output_data:
-            frame = tk.LabelFrame(window, text=model, padx=5, pady=5)
-            frame.grid(row=i, column=0)
+            frame = tk.LabelFrame(inner_frame, text=model, padx=5, pady=5)
+            frame.pack(side=tk.TOP)
             j = 0
             for attribute in output_data[model]:
                 if attribute == "confusion_matrix_path":
@@ -77,11 +96,9 @@ class App(tk.Tk):
                     attr = tk.Label(frame, text=f"{attribute}: {output_data[model][attribute]}")
                     attr.grid(row=1+j, column=1)
                     j += 1
-
-
             i += 1
 
-    # TODO funkcja wyświetlająca dane + instrukcja obsługi w postaci małego tekstu
+    # funkcja wyświetlająca dane + instrukcja obsługi w postaci małego tekstu
     def display_data(self, filename):
         # open file as dataframe
         data = pd.read_csv(filename)
