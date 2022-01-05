@@ -58,20 +58,28 @@ class App(tk.Tk):
         # jeśli ta linijka wywala błąd to znaczy że potrzebuje by stworzyć folder 'matrices'
         output_data = build_models(data, data.iloc[:, -1], CLASIFFIER_LIST, 2137)
         print(output_data)
-        window = Toplevel(self.root)
+        window = Toplevel(self.root, padx=10, pady=10)
+        i = 0
+        for model in output_data:
+            frame = tk.LabelFrame(window, text=model, padx=5, pady=5)
+            frame.grid(row=i, column=0)
+            j = 0
+            for attribute in output_data[model]:
+                if attribute == "confusion_matrix_path":
+                    image = Image.open(output_data[model][attribute])
+                    zoom = 0.2
+                    pixels_x, pixels_y = tuple([int(zoom * x) for x in image.size])
+                    img = ImageTk.PhotoImage(image.resize((pixels_x, pixels_y)))
+                    label = tk.Label(frame, image=img)
+                    label.image = img
+                    label.grid(row=0, column=0, rowspan=5)
+                else:
+                    attr = tk.Label(frame, text=f"{attribute}: {output_data[model][attribute]}")
+                    attr.grid(row=1+j, column=1)
+                    j += 1
 
-        file = 'matrices/SVC.jpg'
-        image = Image.open(file)
 
-        zoom = 0.2
-
-        # multiple image size by zoom
-        pixels_x, pixels_y = tuple([int(zoom * x) for x in image.size])
-
-        img = ImageTk.PhotoImage(image.resize((pixels_x, pixels_y)))
-        label = tk.Label(window, image=img)
-        label.image = img
-        label.grid(row=4, column=1, columnspan=4, padx=10, pady=10)
+            i += 1
 
     # TODO funkcja wyświetlająca dane + instrukcja obsługi w postaci małego tekstu
     def display_data(self, filename):
