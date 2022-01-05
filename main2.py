@@ -1,7 +1,8 @@
 # krok 1: wczytywanie pliku w osobnym okienku - działa
 # krok 2: wyświetlenie kolumn - do zrobienia z pomocą pliku table-display-test.py - more or less działa
-# krok 3: wybór target kolumny - jest event do klikania w kolumnę z pomocą tamtej biblioteki
+# krok 3: TODO wybór target kolumny - jest event do klikania w kolumnę z pomocą tamtej biblioteki
 # krok 4: wyświetlenie drugiego okienka z plain textem *wynik*
+
 
 from compare import build_models, CLASIFFIER_LIST
 from tksheet import Sheet
@@ -63,7 +64,7 @@ class App(tk.Tk):
         if self.window is not None:
             self.window.destroy()
         self.window = Toplevel(self.root, padx=10, pady=10)
-        self.window.geometry('500x500')
+        self.window.geometry('530x500')
 
         # configure scrollbar
         main_frame = tk.Frame(self.window)
@@ -81,7 +82,7 @@ class App(tk.Tk):
         i = 0
         for model in output_data:
             frame = tk.LabelFrame(inner_frame, text=model, padx=5, pady=5)
-            frame.pack(side=tk.TOP)
+            frame.pack(fill=tk.BOTH, expand=1)
             j = 0
             for attribute in output_data[model]:
                 if attribute == "confusion_matrix_path":
