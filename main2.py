@@ -18,6 +18,7 @@ class App(tk.Tk):
         self.root = tk.Tk.__init__(self)
         self.filename = 'D:/Projekty/Python/DataMining/example_data.csv'
         self.window = None
+        self.selected_column = None
 
         # label dla ścieżki
         path_input_label = tk.Label(self.root, text="Path:")
@@ -52,6 +53,8 @@ class App(tk.Tk):
         # you need to unbind the event to prevent recursion
         self.sheet.extra_bindings([("cell_select", None)])
         self.sheet.select_column(self.sheet.get_selected_columns(get_cells_as_columns = True).pop(), redraw = True)
+        self.selected_column = self.sheet.get_selected_columns(get_cells_as_columns = True).pop()
+        #print(self.selected_column)
         self.sheet.extra_bindings([("cell_select", self.select_column)])
         return
 
@@ -59,7 +62,7 @@ class App(tk.Tk):
     def display_computed_outcome(self, filename):
         data = pd.read_csv(filename)
         # jeśli ta linijka wywala błąd to znaczy że potrzebuje by stworzyć folder 'matrices'
-        output_data = build_models(data, data.iloc[:, -1], CLASIFFIER_LIST, 2137)
+        output_data = build_models(data, data.iloc[:,self.selected_column], CLASIFFIER_LIST, 2137)
 
         # allow to only open one window
         if self.window is not None:
@@ -68,6 +71,7 @@ class App(tk.Tk):
         self.window.geometry('530x500')
 
         # configure scrollbar
+        #TODO scroll w mouse
         main_frame = tk.Frame(self.window)
         main_frame.pack(fill=tk.BOTH, expand=1)
         canvas = tk.Canvas(main_frame)
@@ -102,15 +106,12 @@ class App(tk.Tk):
 
     # funkcja wyświetlająca dane + instrukcja obsługi w postaci małego tekstu
     def display_data(self, filename):
-        # open file as dataframe
-        data = pd.read_csv(filename)
         # zamiana csv
         file = open(filename, encoding='utf-8')
         csvreader = csv.reader(file)
         rows = []
         for row in csvreader:
             rows.append(row)
-        print(rows)
         self.frame = tk.Frame(self)
         self.frame.grid_columnconfigure(0, weight=1)
         self.frame.grid_rowconfigure(0, weight=1)
@@ -133,7 +134,7 @@ class App(tk.Tk):
             "column_select"
         ))
         self.sheet.extra_bindings([("cell_select", self.select_column)])
-        # to tutaj z jakiegoś poodu nie działa
+        # to tutaj z jakiegoś powodu nie działa
 
 
 app = App()
