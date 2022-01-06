@@ -1,7 +1,8 @@
 # krok 1: wczytywanie pliku w osobnym okienku - działa
 # krok 2: wyświetlenie kolumn - do zrobienia z pomocą pliku table-display-test.py - more or less działa
-# krok 3: wybór target kolumny - jest event do klikania w kolumnę z pomocą tamtej biblioteki
+# krok 3: TODO wybór target kolumny - jest event do klikania w kolumnę z pomocą tamtej biblioteki
 # krok 4: wyświetlenie drugiego okienka z plain textem *wynik*
+
 
 from compare import build_models, CLASIFFIER_LIST
 from tksheet import Sheet
@@ -17,6 +18,7 @@ class App(tk.Tk):
         self.root = tk.Tk.__init__(self)
         self.filename = 'D:/Projekty/Python/DataMining/example_data.csv'
         self.window = None
+        self.selected_column = None
 
         # label dla ścieżki
         path_input_label = tk.Label(self.root, text="Path:")
@@ -46,26 +48,30 @@ class App(tk.Tk):
         output_text_box.insert(0, self.filename)
         return
 
-    # TODO funkcja wybierająca zmienną wyjaśniajacą
+    # funkcja wybierająca zmienną wyjaśniajacą
     def select_column(self, response):
-        print(self.sheet.set_column_data(0, values=(0 for i in range(2050))))
-        print(response)
-
+        # you need to unbind the event to prevent recursion
+        self.sheet.extra_bindings([("cell_select", None)])
+        self.sheet.select_column(self.sheet.get_selected_columns(get_cells_as_columns = True).pop(), redraw = True)
+        self.selected_column = self.sheet.get_selected_columns(get_cells_as_columns = True).pop()
+        #print(self.selected_column)
+        self.sheet.extra_bindings([("cell_select", self.select_column)])
         return
 
-    # TODO funkcja robiąca magię w osobnym okienku
+    # funkcja robiąca magię w osobnym okienku
     def display_computed_outcome(self, filename):
         data = pd.read_csv(filename)
         # jeśli ta linijka wywala błąd to znaczy że potrzebuje by stworzyć folder 'matrices'
-        output_data = build_models(data, data.iloc[:, -1], CLASIFFIER_LIST, 2137)
+        output_data = build_models(data, data.iloc[:,self.selected_column], CLASIFFIER_LIST, 2137)
 
         # allow to only open one window
         if self.window is not None:
             self.window.destroy()
         self.window = Toplevel(self.root, padx=10, pady=10)
-        self.window.geometry('500x500')
+        self.window.geometry('530x500')
 
         # configure scrollbar
+        #TODO scroll w mouse
         main_frame = tk.Frame(self.window)
         main_frame.pack(fill=tk.BOTH, expand=1)
         canvas = tk.Canvas(main_frame)
@@ -81,7 +87,7 @@ class App(tk.Tk):
         i = 0
         for model in output_data:
             frame = tk.LabelFrame(inner_frame, text=model, padx=5, pady=5)
-            frame.pack(side=tk.TOP)
+            frame.pack(fill=tk.BOTH, expand=1)
             j = 0
             for attribute in output_data[model]:
                 if attribute == "confusion_matrix_path":
@@ -100,50 +106,35 @@ class App(tk.Tk):
 
     # funkcja wyświetlająca dane + instrukcja obsługi w postaci małego tekstu
     def display_data(self, filename):
-        # open file as dataframe
-        data = pd.read_csv(filename)
         # zamiana csv
         file = open(filename, encoding='utf-8')
         csvreader = csv.reader(file)
         rows = []
         for row in csvreader:
             rows.append(row)
-        print(rows)
         self.frame = tk.Frame(self)
         self.frame.grid_columnconfigure(0, weight=1)
         self.frame.grid_rowconfigure(0, weight=1)
         self.sheet = Sheet(self.frame,
-                      page_up_down_select_row=True,
-                      expand_sheet_if_paste_too_big=True,
+                      # page_up_down_select_row=True,
+                      # expand_sheet_if_paste_too_big=True,
                       # empty_vertical = 0,
                       column_width=80,
                       startup_select=(0, 1, "rows"),
                       data=rows[1:11:],
-                      # data =[[f"Row {r}, Column {c}\nnewline1\nnewline2" for c in range(5)] for r in range(500)],
                       headers=rows[0],
                       height=250,  # height and width arguments are optional
-                      width=800  # For full startup arguments see DOCUMENTATION.md
+                      width=700  # For full startup arguments see DOCUMENTATION.md
                       )
         self.frame.grid(row=2, column=0, columnspan=3, rowspan=2, sticky="nswe")
         self.sheet.grid(row=2, column=0, columnspan=3, rowspan=2, sticky="nswe")
 
         self.sheet.enable_bindings((
             "single_select",
-            # "drag_select",
-            # "select_all",
-            # "column_select",
-            # "row_select",
-            # "column_width_resize",
-            # "double_click_column_resize",
-            # "arrowkeys",
-            # "row_height_resize",
-            # "double_click_row_resize",
-            # "right_click_popup_menu",
-            # "rc_select"
+            "column_select"
         ))
-        self.sheet.extra_bindings(("column_select"), func=lambda: self.select_column("chleb"))
-
-        # to tutaj z jakiegoś poodu nie działa
+        self.sheet.extra_bindings([("cell_select", self.select_column)])
+        # to tutaj z jakiegoś powodu nie działa
 
 
 app = App()
