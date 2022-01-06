@@ -47,14 +47,15 @@ class App(tk.Tk):
         output_text_box.insert(0, self.filename)
         return
 
-    # TODO funkcja wybierająca zmienną wyjaśniajacą
+    # funkcja wybierająca zmienną wyjaśniajacą
     def select_column(self, response):
-        print(self.sheet.set_column_data(0, values=(0 for i in range(2050))))
-        print(response)
-
+        # you need to unbind the event to prevent recursion
+        self.sheet.extra_bindings([("cell_select", None)])
+        self.sheet.select_column(self.sheet.get_selected_columns(get_cells_as_columns = True).pop(), redraw = True)
+        self.sheet.extra_bindings([("cell_select", self.select_column)])
         return
 
-    # TODO funkcja robiąca magię w osobnym okienku
+    # funkcja robiąca magię w osobnym okienku
     def display_computed_outcome(self, filename):
         data = pd.read_csv(filename)
         # jeśli ta linijka wywala błąd to znaczy że potrzebuje by stworzyć folder 'matrices'
@@ -114,36 +115,24 @@ class App(tk.Tk):
         self.frame.grid_columnconfigure(0, weight=1)
         self.frame.grid_rowconfigure(0, weight=1)
         self.sheet = Sheet(self.frame,
-                      page_up_down_select_row=True,
-                      expand_sheet_if_paste_too_big=True,
+                      # page_up_down_select_row=True,
+                      # expand_sheet_if_paste_too_big=True,
                       # empty_vertical = 0,
                       column_width=80,
                       startup_select=(0, 1, "rows"),
                       data=rows[1:11:],
-                      # data =[[f"Row {r}, Column {c}\nnewline1\nnewline2" for c in range(5)] for r in range(500)],
                       headers=rows[0],
                       height=250,  # height and width arguments are optional
-                      width=800  # For full startup arguments see DOCUMENTATION.md
+                      width=700  # For full startup arguments see DOCUMENTATION.md
                       )
         self.frame.grid(row=2, column=0, columnspan=3, rowspan=2, sticky="nswe")
         self.sheet.grid(row=2, column=0, columnspan=3, rowspan=2, sticky="nswe")
 
         self.sheet.enable_bindings((
             "single_select",
-            # "drag_select",
-            # "select_all",
-            # "column_select",
-            # "row_select",
-            # "column_width_resize",
-            # "double_click_column_resize",
-            # "arrowkeys",
-            # "row_height_resize",
-            # "double_click_row_resize",
-            # "right_click_popup_menu",
-            # "rc_select"
+            "column_select"
         ))
-        self.sheet.extra_bindings(("column_select"), func=lambda: self.select_column("chleb"))
-
+        self.sheet.extra_bindings([("cell_select", self.select_column)])
         # to tutaj z jakiegoś poodu nie działa
 
 
