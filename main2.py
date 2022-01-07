@@ -19,6 +19,8 @@ class App(tk.Tk):
         self.filename = 'D:/Projekty/Python/DataMining/example_data.csv'
         self.window = None
         self.selected_column = None
+        self.header = None
+        self.selected_column_label2 = None
 
         # label dla ścieżki
         path_input_label = tk.Label(self.root, text="Path:")
@@ -48,14 +50,19 @@ class App(tk.Tk):
         output_text_box.insert(0, self.filename)
         return
 
-    # funkcja wybierająca zmienną wyjaśniajacą
+    # funkcja wybierająca zmienną wyjaśniajacą - kolumna
     def select_column(self, e):
         print(e.column)
         # you need to unbind the event to prevent recursion
-        self.sheet.extra_bindings([("cell_select", None)])
+        self.sheet.extra_bindings([("column_select", None)])
         self.sheet.select_column(e.column, redraw = True)
         self.selected_column = e.column
-        self.sheet.extra_bindings([("cell_select", self.select_column)])
+        # selected column label
+        if self.selected_column_label2:
+            self.selected_column_label2.config(text="")
+        self.selected_column_label2 = tk.Label(self.root, text="Wybrana zmienna: "+(str(self.header[self.selected_column]) if str(self.selected_column) else "no"))
+        self.selected_column_label2.grid(row=1, column=0, padx=10, pady=10)
+        self.sheet.extra_bindings([("column_select", self.select_column)])
         return
 
     # funkcja robiąca magię w osobnym okienku
@@ -112,6 +119,7 @@ class App(tk.Tk):
         rows = []
         for row in csvreader:
             rows.append(row)
+        self.header = rows[0]
         self.frame = tk.Frame(self)
         self.frame.grid_columnconfigure(0, weight=1)
         self.frame.grid_rowconfigure(0, weight=1)
@@ -122,7 +130,7 @@ class App(tk.Tk):
                       column_width=80,
                       startup_select=(0, 1, "rows"),
                       data=rows[1:11:],
-                      headers=rows[0],
+                      headers=self.header,
                       height=250,  # height and width arguments are optional
                       width=700  # For full startup arguments see DOCUMENTATION.md
                       )
