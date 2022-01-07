@@ -16,7 +16,7 @@ class App(tk.Tk):
     def __init__(self):
         # initialize private properties
         self.root = tk.Tk.__init__(self)
-        #self.filename = 'D:/Projekty/Python/DataMining/example_data.csv'
+        # self.filename = 'D:/Projekty/Python/DataMining/example_data.csv'
         self.filename = 'C:/Users/ewaad/Documents/GitHub/DataMining/example_data.csv'
         self.window = None
         self.selected_column = None
