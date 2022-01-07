@@ -19,6 +19,7 @@ class App(tk.Tk):
         self.filename = 'D:/Projekty/Python/DataMining/example_data.csv'
         self.window = None
         self.selected_column = None
+        self.canvas = None
 
         # label dla ścieżki
         path_input_label = tk.Label(self.root, text="Path:")
@@ -58,6 +59,10 @@ class App(tk.Tk):
         self.sheet.extra_bindings([("cell_select", self.select_column)])
         return
 
+    # funkcja do scrolla w oknie wyniku
+    def _on_mousewheel(self, e):
+        self.canvas.yview_scroll(-1 * (e.delta // 120), "units")
+
     # funkcja robiąca magię w osobnym okienku
     def display_computed_outcome(self, filename):
         data = pd.read_csv(filename)
@@ -74,14 +79,15 @@ class App(tk.Tk):
         #TODO scroll w mouse
         main_frame = tk.Frame(self.window)
         main_frame.pack(fill=tk.BOTH, expand=1)
-        canvas = tk.Canvas(main_frame)
-        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
-        scrollbar = tk.Scrollbar(main_frame, orient=tk.VERTICAL, command=canvas.yview)
+        self.canvas = tk.Canvas(main_frame)
+        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+        scrollbar = tk.Scrollbar(main_frame, orient=tk.VERTICAL, command=self.canvas.yview)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        canvas.configure(yscrollcommand=scrollbar.set)
-        canvas.bind('<Configure>', lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-        inner_frame = tk.Frame(canvas)
-        canvas.create_window((0,0), window=inner_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=scrollbar.set)
+        self.canvas.bind('<Configure>', lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+        inner_frame = tk.Frame(self.canvas)
+        self.canvas.create_window((0,0), window=inner_frame, anchor="nw")
+        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
 
         # display outcome in frames
         i = 0
