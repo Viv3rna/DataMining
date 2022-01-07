@@ -49,12 +49,12 @@ class App(tk.Tk):
         return
 
     # funkcja wybierająca zmienną wyjaśniajacą
-    def select_column(self, response):
+    def select_column(self, e):
+        print(e.column)
         # you need to unbind the event to prevent recursion
         self.sheet.extra_bindings([("cell_select", None)])
-        self.sheet.select_column(self.sheet.get_selected_columns(get_cells_as_columns = True).pop(), redraw = True)
-        self.selected_column = self.sheet.get_selected_columns(get_cells_as_columns = True).pop()
-        #print(self.selected_column)
+        self.sheet.select_column(e.column, redraw = True)
+        self.selected_column = e.column
         self.sheet.extra_bindings([("cell_select", self.select_column)])
         return
 
