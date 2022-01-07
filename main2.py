@@ -1,6 +1,6 @@
 # krok 1: wczytywanie pliku w osobnym okienku - działa
 # krok 2: wyświetlenie kolumn - do zrobienia z pomocą pliku table-display-test.py - more or less działa
-# krok 3: TODO wybór target kolumny - jest event do klikania w kolumnę z pomocą tamtej biblioteki
+# krok 3: wybór target kolumny - jest event do klikania w kolumnę z pomocą tamtej biblioteki
 # krok 4: wyświetlenie drugiego okienka z plain textem *wynik*
 
 
@@ -16,7 +16,8 @@ class App(tk.Tk):
     def __init__(self):
         # initialize private properties
         self.root = tk.Tk.__init__(self)
-        self.filename = 'D:/Projekty/Python/DataMining/example_data.csv'
+        #self.filename = 'D:/Projekty/Python/DataMining/example_data.csv'
+        self.filename = 'C:/Users/ewaad/Documents/GitHub/DataMining/example_data.csv'
         self.window = None
         self.selected_column = None
         self.header = None
