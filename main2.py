@@ -22,7 +22,7 @@ class App(tk.Tk):
         self.selected_column = None
         self.canvas = None
         self.header = None
-        self.selected_column_label2 = None
+        self.selected_column_label = None
 
         # label dla ścieżki
         path_input_label = tk.Label(self.root, text="Path:")
@@ -65,6 +65,8 @@ class App(tk.Tk):
             # if ^this fails the path in window won't change
             output_text_box.delete(0, tk.END)
             output_text_box.insert(0, self.filename)
+            self.selected_column_label = tk.Label(self.root, text="Select target column")
+            self.selected_column_label.place(x=15, y=50)
         except Exception as e:
             print(e)
             tk.messagebox.showerror("Error", "There was an error loading the file.")
@@ -78,10 +80,11 @@ class App(tk.Tk):
         self.sheet.select_column(e.column, redraw = True)
         self.selected_column = e.column
         # selected column label
-        if self.selected_column_label2:
-            self.selected_column_label2.config(text="")
-        self.selected_column_label2 = tk.Label(self.root, text="Wybrana zmienna: "+(str(self.header[self.selected_column]) if str(self.selected_column) else "no"))
-        self.selected_column_label2.grid(row=1, column=0, padx=10, pady=10)
+        if self.selected_column_label:
+            self.selected_column_label.config(text="")
+        self.selected_column_label = tk.Label(self.root, text="Target variable: "+(str(self.header[self.selected_column]) if str(self.selected_column) else "no"))
+        # self.selected_column_label.grid(row=1, column=0, padx=10, pady=10)
+        self.selected_column_label.place(x=15, y=50)
         self.sheet.extra_bindings([("column_select", self.select_column)])
         self.button_3["state"] = "normal"
         return
