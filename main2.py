@@ -16,8 +16,8 @@ class App(tk.Tk):
     def __init__(self):
         # initialize private properties
         self.root = tk.Tk.__init__(self)
-        # self.filename = 'D:/Projekty/Python/DataMining/example_data.csv'
-        self.filename = 'C:/Users/ewaad/Documents/GitHub/DataMining/example_data.csv'
+        self.filename = 'D:/Projekty/Python/DataMining/example_data.csv'
+        # self.filename = 'C:/Users/ewaad/Documents/GitHub/DataMining/example_data.csv'
         self.window = None
         self.selected_column = None
         self.canvas = None
@@ -26,30 +26,48 @@ class App(tk.Tk):
 
         # label dla ścieżki
         path_input_label = tk.Label(self.root, text="Path:")
-        path_input_label.grid(row=0, column=0, padx=10, pady=10)
+        # path_input_label.grid(row=0, column=0, padx=10, pady=10)
+        path_input_label.place(x=15, y=17)
 
         # input dla ścieżki
-        path_input_box = tk.Entry(self.root, width=50, borderwidth=5)
-        path_input_box.grid(row=0, column=1, columnspan=3, padx=10)
+        path_input_box = tk.Entry(self.root, width=70, borderwidth=4)
+        path_input_box.place(x=60, y=15)
+        # path_input_box.insert(0, self.filename)
 
-        path_input_box.insert(0, self.filename)
+        self.button_1 = tk.Button(self.root, text="Browse", command=lambda: self.get_file_name(path_input_box), width=15)
+        # self.button_1.grid(row=0, column=5, columnspan=2, padx=10, pady=10)
+        self.button_1.place(x=506, y=15)
 
-        button_1 = tk.Button(self.root, text="Browse", command=lambda: self.get_file_name(path_input_box))
-        button_1.grid(row=0, column=5, columnspan=2, padx=10, pady=10)
+        # self.button_2 = tk.Button(self.root, text="Display data", command=lambda: self.display_data(self.filename), width=15, state="disabled")
+        # # self.button_2.grid(row=2, column=5, padx=10, pady=10)
+        # self.button_2.place(x=506, y=50)
 
-        button_2 = tk.Button(self.root, text="Display data", command=lambda: self.display_data(self.filename))
-        button_2.grid(row=2, column=5, padx=10, pady=10)
+        self.button_3 = tk.Button(self.root, text="Open new window", command=lambda: self.display_computed_outcome(self.filename), state='disabled')
+        # self.button_3.grid(row=3, column=5, padx=10, pady=10)
+        self.button_3.place(x=506, y=435)
 
-        button_3 = tk.Button(self.root, text="Open new window", command=lambda: self.display_computed_outcome(self.filename))
-        button_3.grid(row=3, column=5, padx=10, pady=10)
+        # test button lol
+        # self.button_4 = tk.Button(self.root, text="test", command=lambda: self.get_file_name(path_input_box), width=15)
+        # self.button_4.place(x=506, y=85)
+
         return
 
     # funkcja do pobierania pliku
     def get_file_name(self, output_text_box):
         # get file name
         self.filename = filedialog.askopenfilename(initialdir="", title="Wczytywanie pliku .csv", filetypes=(("csv files", "*.csv"), ("all files", "*.*")))
-        output_text_box.delete(0, tk.END)
-        output_text_box.insert(0, self.filename)
+
+        if len(self.filename) == 0:
+            return
+
+        try:
+            self.display_data(self.filename)
+            # if ^this fails the path in window won't change
+            output_text_box.delete(0, tk.END)
+            output_text_box.insert(0, self.filename)
+        except Exception as e:
+            print(e)
+            tk.messagebox.showerror("Error", "There was an error loading the file.")
         return
 
     # funkcja wybierająca zmienną wyjaśniajacą - kolumna
@@ -65,11 +83,17 @@ class App(tk.Tk):
         self.selected_column_label2 = tk.Label(self.root, text="Wybrana zmienna: "+(str(self.header[self.selected_column]) if str(self.selected_column) else "no"))
         self.selected_column_label2.grid(row=1, column=0, padx=10, pady=10)
         self.sheet.extra_bindings([("column_select", self.select_column)])
+        self.button_3["state"] = "normal"
         return
 
     # funkcja do scrolla w oknie wyniku
     def _on_mousewheel(self, e):
-        self.canvas.yview_scroll(-1 * (e.delta // 120), "units")
+        try:
+            self.canvas.yview_scroll(-1 * (e.delta // 120), "units")
+        except:
+            pass # TODO xD
+            # bez tego try/except wywala błąd, że nie może wykonać tej linijki, a to dlatego, że okno nie istnieje
+            # ale on uważa inaczej :V
 
     # funkcja robiąca magię w osobnym okienku
     def display_computed_outcome(self, filename):
@@ -81,7 +105,7 @@ class App(tk.Tk):
         if self.window is not None:
             self.window.destroy()
         self.window = Toplevel(self.root, padx=10, pady=10)
-        self.window.geometry('530x500')
+        self.window.geometry('640x480')
 
         # configure scrollbar
         #TODO scroll w mouse
@@ -118,7 +142,7 @@ class App(tk.Tk):
                     j += 1
             i += 1
 
-    # funkcja wyświetlająca dane + instrukcja obsługi w postaci małego tekstu
+    # funkcja wyświetlająca tabele z danymi  + instrukcja obsługi w postaci małego tekstu
     def display_data(self, filename):
         # zamiana csv
         file = open(filename, encoding='utf-8')
@@ -127,7 +151,7 @@ class App(tk.Tk):
         for row in csvreader:
             rows.append(row)
         self.header = rows[0]
-        self.frame = tk.Frame(self)
+        self.frame = tk.Frame(self, borderwidth=2, bg='grey')
         self.frame.grid_columnconfigure(0, weight=1)
         self.frame.grid_rowconfigure(0, weight=1)
         self.sheet = Sheet(self.frame,
@@ -136,12 +160,13 @@ class App(tk.Tk):
                       # empty_vertical = 0,
                       column_width=80,
                       startup_select=(0, 1, "rows"),
-                      data=rows[1:11:],
+                      data=rows[1:16:],
                       headers=self.header,
-                      height=250,  # height and width arguments are optional
-                      width=700  # For full startup arguments see DOCUMENTATION.md
+                      height=300,
+                      width=600
                       )
-        self.frame.grid(row=2, column=0, columnspan=3, rowspan=2, sticky="nswe")
+        # self.frame.grid(row=2, column=0, columnspan=3, rowspan=2, sticky="nswe")
+        self.frame.place(x=15, y=85) # y=120 if button_2 exists, 85 if not
         self.sheet.grid(row=2, column=0, columnspan=3, rowspan=2, sticky="nswe")
 
         self.sheet.enable_bindings((
@@ -154,5 +179,7 @@ class App(tk.Tk):
 
 app = App()
 app.title("Porównywarka klasyfikatorów")
+app.geometry('640x480')
+# app.geometry('800x640')
 app.resizable(False, False)
 app.mainloop()
