@@ -42,7 +42,7 @@ class App(tk.Tk):
         # # self.button_2.grid(row=2, column=5, padx=10, pady=10)
         # self.button_2.place(x=506, y=50)
 
-        self.button_3 = tk.Button(self.root, text="Open new window", command=lambda: self.display_computed_outcome(self.filename), state='disabled')
+        self.button_3 = tk.Button(self.root, text="Compare classifiers", command=lambda: self.display_computed_outcome(self.filename), state='disabled')
         # self.button_3.grid(row=3, column=5, padx=10, pady=10)
         self.button_3.place(x=506, y=435)
 
@@ -108,10 +108,10 @@ class App(tk.Tk):
         if self.window is not None:
             self.window.destroy()
         self.window = Toplevel(self.root, padx=10, pady=10)
-        self.window.geometry('640x480')
+        self.window.geometry('1490x990')
+        # self.window.geometry('640x480')
 
         # configure scrollbar
-        #TODO scroll w mouse
         main_frame = tk.Frame(self.window)
         main_frame.pack(fill=tk.BOTH, expand=1)
         self.canvas = tk.Canvas(main_frame)
@@ -125,10 +125,15 @@ class App(tk.Tk):
         self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
 
         # display outcome in frames
+        inner_frame.grid_columnconfigure(0, weight=1)
         i = 0
+        row = 0
         for model in output_data:
             frame = tk.LabelFrame(inner_frame, text=model, padx=5, pady=5)
-            frame.pack(fill=tk.BOTH, expand=1)
+            # frame.pack(fill="x", expand=1)
+            frame.grid(row=row, column=i % 3, sticky="we")
+            if i % 3 == 2:
+                row += 1
             j = 0
             for attribute in output_data[model]:
                 if attribute == "confusion_matrix_path":
@@ -181,7 +186,7 @@ class App(tk.Tk):
 
 
 app = App()
-app.title("Porównywarka klasyfikatorów")
+app.title("Classifier comparator")
 app.geometry('640x480')
 # app.geometry('800x640')
 app.resizable(False, False)
