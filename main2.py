@@ -12,6 +12,14 @@ import tkinter as tk
 import pandas as pd
 import csv
 
+
+def state_validate(inStr, acttyp):
+    if acttyp == '1':  # insert
+        if not inStr.isdigit():
+            return False
+    return True
+
+
 class App(tk.Tk):
     def __init__(self):
         # initialize private properties
@@ -26,21 +34,22 @@ class App(tk.Tk):
 
         # label dla ścieżki
         path_input_label = tk.Label(self.root, text="Path:")
-        # path_input_label.grid(row=0, column=0, padx=10, pady=10)
         path_input_label.place(x=15, y=17)
 
         # input dla ścieżki
         path_input_box = tk.Entry(self.root, width=70, borderwidth=4)
         path_input_box.place(x=60, y=15)
-        # path_input_box.insert(0, self.filename)
 
         self.button_1 = tk.Button(self.root, text="Browse", command=lambda: self.get_file_name(path_input_box), width=15)
-        # self.button_1.grid(row=0, column=5, columnspan=2, padx=10, pady=10)
         self.button_1.place(x=506, y=15)
 
-        # self.button_2 = tk.Button(self.root, text="Display data", command=lambda: self.display_data(self.filename), width=15, state="disabled")
-        # # self.button_2.grid(row=2, column=5, padx=10, pady=10)
-        # self.button_2.place(x=506, y=50)
+        # add random state input
+        state_input_label = tk.Label(self.root, text="Random state:")
+        state_input_label.place(x=15, y=405)
+        self.state_input_box = tk.Entry(self.root, width=10, borderwidth=4, validate="key")
+        self.state_input_box['validatecommand'] = (self.state_input_box.register(state_validate), '%P', '%d')
+        self.state_input_box.insert(0, '100')
+        self.state_input_box.place(x=110, y=405)
 
         self.button_3 = tk.Button(self.root, text="Compare classifiers", command=lambda: self.display_computed_outcome(self.filename), state='disabled')
         # self.button_3.grid(row=3, column=5, padx=10, pady=10)
@@ -102,7 +111,7 @@ class App(tk.Tk):
     def display_computed_outcome(self, filename):
         data = pd.read_csv(filename)
         # jeśli ta linijka wywala błąd to znaczy że potrzebuje by stworzyć folder 'matrices'
-        output_data = build_models(data, data.iloc[:,self.selected_column], CLASIFFIER_LIST, 2137)
+        output_data = build_models(data, data.iloc[:,self.selected_column], CLASIFFIER_LIST, int(self.state_input_box.get()) if self.state_input_box.get() else 1)
 
         # allow to only open one window
         if self.window is not None:
