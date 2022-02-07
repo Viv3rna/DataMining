@@ -111,6 +111,7 @@ class App(tk.Tk):
         except Exception as e:
             print(e)
             tk.messagebox.showerror("Error", "Please select a binary target column.")
+            return
 
         # allow to only open one window
         if self.window is not None:
