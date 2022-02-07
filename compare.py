@@ -6,6 +6,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score, accuracy_score, confusion_matrix, recall_score
+from pathlib import Path
 
 # Models
 from sklearn.linear_model import Perceptron, LogisticRegression
@@ -60,6 +61,7 @@ def build_models(
             ax = sns.heatmap(confusion_matrix(y_test, predicted), annot=True, fmt="g")
             fig = ax.get_figure()
             print(model.__name__)
+            Path("matrices").mkdir(parents=True, exist_ok=True)
             fig.savefig(f"matrices\\{model.__name__}.jpg", dpi=300)
             plt.close()
             results_dictionary[model.__name__] = {

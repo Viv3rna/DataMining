@@ -1,8 +1,3 @@
-# krok 1: wczytywanie pliku w osobnym okienku - działa
-# krok 2: wyświetlenie kolumn - do zrobienia z pomocą pliku table-display-test.py - more or less działa
-# krok 3: wybór target kolumny - jest event do klikania w kolumnę z pomocą tamtej biblioteki
-# krok 4: wyświetlenie drugiego okienka z plain textem *wynik*
-
 
 from compare import build_models, CLASIFFIER_LIST
 from tksheet import Sheet
@@ -111,7 +106,11 @@ class App(tk.Tk):
     def display_computed_outcome(self, filename):
         data = pd.read_csv(filename)
         # jeśli ta linijka wywala błąd to znaczy że potrzebuje by stworzyć folder 'matrices'
-        output_data = build_models(data, data.iloc[:,self.selected_column], CLASIFFIER_LIST, int(self.state_input_box.get()) if self.state_input_box.get() else 1)
+        try:
+            output_data = build_models(data, data.iloc[:,self.selected_column], CLASIFFIER_LIST, int(self.state_input_box.get()) if self.state_input_box.get() else 1)
+        except Exception as e:
+            print(e)
+            tk.messagebox.showerror("Error", "Please select a binary target column.")
 
         # allow to only open one window
         if self.window is not None:
